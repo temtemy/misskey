@@ -537,16 +537,29 @@ export class FileServerService {
 		const isWebpublic = file.webpublicAccessKey === key;
 
 		if (!file.storedInternal) {
-			if (!(file.isLink && file.uri)) return '204';
-			const result = await this.downloadAndDetectTypeFromUrl(file.uri);
-			file.size = (await fs.promises.stat(result.path)).size;	// DB file.sizeは正確とは限らないので
-			return {
-				...result,
-				url: file.uri,
-				fileRole: isThumbnail ? 'thumbnail' : isWebpublic ? 'webpublic' : 'original',
-				file,
-				filename: file.name,
-			};
+			if (file.isLink && file.uri) {
+				file.size = (await fs.promises.stat(result.path)).size;	// DB file.sizeは正確とは限らないので
+				const result = await this.downloadAndDetectTypeFromUrl(file.uri);
+				return {
+					...result,
+					url: file.uri,
+					fileRole: isThumbnail ? 'thumbnail' : isWebpublic ? 'webpublic' : 'original',
+					file,
+					filename: file.name,
+				};
+			} else if (file.createdByMicropub) {
+				file.size = (await fs.promises.stat(result.path)).size;	// DB file.sizeは正確とは限らないので
+				const result = await this.downloadAndDetectTypeFromUrl(file.url);
+				return {
+					...result,
+					url: file.url,
+					fileRole: isThumbnail ? 'thumbnail' : isWebpublic ? 'webpublic' : 'original',
+					file,
+					filename: file.name,
+				};
+			} else {
+				return '204';
+			}
 		}
 
 		const path = this.internalStorageService.resolvePath(key);
