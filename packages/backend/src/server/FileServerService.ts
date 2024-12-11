@@ -538,8 +538,8 @@ export class FileServerService {
 
 		if (!file.storedInternal) {
 			if (file.isLink && file.uri) {
-				file.size = (await fs.promises.stat(result.path)).size;	// DB file.sizeは正確とは限らないので
 				const result = await this.downloadAndDetectTypeFromUrl(file.uri);
+				file.size = (await fs.promises.stat(result.path)).size;	// DB file.sizeは正確とは限らないので
 				return {
 					...result,
 					url: file.uri,
@@ -548,8 +548,8 @@ export class FileServerService {
 					filename: file.name,
 				};
 			} else if (file.createdByMicropub) {
-				file.size = (await fs.promises.stat(result.path)).size;	// DB file.sizeは正確とは限らないので
 				const result = await this.downloadAndDetectTypeFromUrl(file.url);
+				file.size = (await fs.promises.stat(result.path)).size;	// DB file.sizeは正確とは限らないので
 				return {
 					...result,
 					url: file.url,
